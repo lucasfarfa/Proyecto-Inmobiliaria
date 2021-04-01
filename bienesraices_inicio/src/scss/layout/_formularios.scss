@@ -1,0 +1,46 @@
+.formulario {
+    p {
+        font-size: 1.4rem;
+        color: $grisOscuro;
+        margin: 2rem 0;
+    }
+
+    legend {
+        font-size: 2rem;
+        color: $grisOscuro;
+    }
+    
+    label {
+        font-weight: $bold;
+        text-transform: uppercase;
+        display: block; //con nesta linnea cada inngreso del form va de arriba hacia abajo
+    }
+
+    input:not([type="submit"]),
+    textarea,
+    select { // aplica en todos menos en el tipo submit (boton)
+        padding: 1rem; // el tamanio de dodne se inngresa los datos
+        display: block;
+        width: 100%;
+        background-color: $blanco;
+        border: 1px solid $gris;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    textarea { //para que nose ponnga loco lo lockeo 
+        height: 20rem;
+        resize: none; // el usuario nno lo puede agrandar.
+    }
+
+    .forma-contacto { // para el formulario de punnntos
+        max-width: 30rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    input[type="radio"] { // los alineo al texto
+        margin: 0;
+        width: auto;
+    }
+}
