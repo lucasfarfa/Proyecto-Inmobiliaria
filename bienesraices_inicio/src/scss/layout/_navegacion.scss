@@ -1,17 +1,53 @@
+.derecha {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    @include tablet {
+        align-items: flex-end;
+    }
+
+    .dark-mode-boton {
+        width: 3rem;
+        margin-top: 3rem;
+        margin-bottom: 2rem;
+        filter: invert(100%); // invierte el color
+
+        &:hover {
+            cursor: pointer;
+        }
+        @include tablet {
+            margin-top: 0;
+        }
+    }
+}
+
 .barra {
     display: flex;
     flex-direction: column;
+    align-items: center;
     padding-top: 3rem;
     @include tablet {
         flex-direction: row;
         justify-content: space-between;
+        align-items: flex-end;
     }
 }
 
 .navegacion {
+
+    visibility: hidden; //asi no aparece en ncelus y aparece el menu de hamburgesa
+    // equivale a un display none, lo pongo para poder usar ainmaciones.
+    opacity: 0;
+    height: 0;
+    transition: visibility .3s ease-in-out, opacity .3s linear, height .3s linear; //que animo, tiempo , tipo de aninmacio
+
     @include tablet{
         display: flex;
         align-items: center;
+        // estas ultimas dos sonn por el tema del menu hamburgesa, para que se vea bien todo
+        opacity: 1;
+        visibility: visible;
     }
     a {
         color: $blanco;
@@ -28,4 +64,21 @@
             }
         }
     }
+}
+
+/** Menu de hamburguesa **/
+.mobile-menu {
+    @include tablet { //desaparece en tamanos grandes
+        display: none;
+    }
+    img {
+        width: 5rem;
+
+    }
+}
+
+.mostrar { //quiero agregar annimacion pero a los display no se puede.
+    visibility: visible; // muestro 
+    opacity: 1;
+    height: auto;
 }
