@@ -3,11 +3,15 @@
 require '../../includes/config/database.php';
 $db =  conectarDB(); // llamo la db aqui porque es donde la voy a usar para poder guardar los datos del form
 
+// Consultar DB para obtener los vendedores y asi mostrarlos en el form.
+$consulta = "SELECT * FROM vendedores";
+$resultado = mysqli_query($db, $consulta);
+
 // Array con mensajes de errores para validacion de formulario
 $errores = [];
 
 /** Esto de inicializarlo en string vacio es para mantener el valor en de un campo en caso de error.
-*  Complementa con value="<?php echo $variable; ?> dentro de cada input **/
+ *  Complementa con value="<?php echo $variable; ?> dentro de cada input **/
 $titulo = '';
 $precio = '';
 $descripcion = '';
@@ -19,14 +23,23 @@ $vendedorId = '';
 // Ejecuta codigo despues de que el usuario envie el formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+
+
     // con eso me traigo a PHP lo que el usaurio escriba.
-    $titulo = $_POST['titulo'];
-    $precio = $_POST['precio'];
-    $descripcion = $_POST['descripcion'];
-    $habitaciones = $_POST['habitaciones'];
-    $wc = $_POST['wc'];
-    $estacionamiento = $_POST['estacionamiento'];
-    $vendedorId = $_POST['vendedor'];
+    // real escape string nos valida y sanitiza (db , que validar)
+
+    $titulo = mysqli_real_escape_string($db, $_POST['titulo']);
+    $precio = mysqli_real_escape_string($db, $_POST['precio']);
+    $descripcion = mysqli_real_escape_string($db, $_POST['descripcion']);
+    $habitaciones = mysqli_real_escape_string($db, $_POST['habitaciones']);
+    $wc = mysqli_real_escape_string($db, $_POST['wc']);
+    $estacionamiento = mysqli_real_escape_string($db, $_POST['estacionamiento']);
+    $vendedorId = mysqli_real_escape_string($db, $_POST['vendedor']);
+    $creado = date('Y/m/d'); //guarda en la db la fecha de creacion nde la nueva propiedad
+    // Asignar files hacia una variable
+    $imagen = $_FILES['imagen'];
+
+    
 
     // valido que este todo cargado.
     // la sintaxis $errores[] = va agregando al final del array
@@ -51,23 +64,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$vendedorId) {
         $errores[] = "Elige un vendedor";
     }
+    if(!$imagen['name'] || $imagen['error']) {
+        $errores[] = "La imagen es obligatoria";
+    }
 
-    // echo '<pre>';
-    // var_dump($errores);
-    // echo '</pre>';
+    // Validar imagen por tamano
+    $medida = 1000 * 1000; // max 1mb
+
+    if($imagen['size'] > $medida) {
+        $errores[] = ' la imagen es muy pesada';
+    }
+
 
     // Revisar que el array de errores este vacio y ahi correr el $query
     if (empty($errores)) {
+
+        /** Subida de archivos */
+
+        // Crear carpeta
+        $carpetaImagenes = '../../imagenes/';
+        if(!is_dir($carpetaImagenes)){ // si no existe la carpeta nueva, la crea. sino no pasa nada
+            mkdir($carpetaImagenes);// crea directorio
+        }
+
+        // Generar nombre unico
+        $nombreImagen = md5( uniqid( rand(), true) );
+
+        // Subir imagen
+        move_uploaded_file($imagen['tmp_name'], $carpetaImagenes . $nombreImagen . '.jpg');
+        //(archivo, ubicacion na mover)
+
         // Insertar en la base de datos
-        $query = "INSERT INTO propiedades (titulo, precio, descripcion, habitaciones, wc, estacionamiento, vendedorId) VALUES ('$titulo', '$precio', '$descripcion', '$habitaciones', '$wc', '$estacionamiento', '$vendedorId')"; // codigo SQL -- Ingreso a la DB los datos del form. -- $ variables de donnde toma los valores (VALUE)
+        $query = "INSERT INTO propiedades (titulo, precio, imagen,descripcion, habitaciones, wc, estacionamiento, creado, vendedorId) VALUES ('$titulo', '$precio', '$nombreImagen', '$descripcion', '$habitaciones', '$wc', '$estacionamiento', '$creado', '$vendedorId')"; // codigo SQL -- Ingreso a la DB los datos del form. -- $ variables de donnde toma los valores (VALUE)
         //echo $query ; deberia imprimir lo ingresado por el user en codigo SQL.
 
         $resultado = mysqli_query($db, $query); //creo var $resultado para mandar los datos del form a la db.
 
-        if ($resultado) { // esto lo use para ver en la pagina si se cargaba o nno la data a la database.
-            echo 'insertado correctamente';
-        } else {
-            echo 'ta rancio';
+        // Redirecciono al usuario una vez que mande bien el form
+        if ($resultado) { //asi no meten datos duplicados los locos
+            header("Location: /admin"); // sirver para redireccionar al user
         }
     }
 }
@@ -89,7 +124,8 @@ incluirTemplate('header');
         </div>
     <?php endforeach; ?>
 
-    <form class="formulario" method="POST" action="/admin/propiedades/crear.php">
+    <form class="formulario" method="POST" action="/admin/propiedades/crear.php" enctype="multipart/form-data">
+        <!-- el multipart es necesario para la subida de archivos -->
         <fieldset>
             <legend>Informacion General</legend>
 
@@ -100,7 +136,7 @@ incluirTemplate('header');
             <input type="number" id="precio" name="precio" placeholder="Precio propiedad" value="<?php echo $precio; ?>">
 
             <label for="imagen">Imagen:</label>
-            <input type="file" id="imagen" accept="image/jpeg, image/png"> <!-- file permite subir archivo -->
+            <input type="file" id="imagen" accept="image/jpeg, image/png" name="imagen"> <!-- file permite subir archivo -->
 
             <label for="descripcion">Descripción:</label>
             <textarea id="descripcion" name="descripcion"><?php echo $descripcion; ?></textarea> <!-- text area NO USA value -->
@@ -124,9 +160,13 @@ incluirTemplate('header');
 
             <select name="vendedor">
                 <option value="" selected>--Seleccione--</option>
-                <option value="1">Lucas</option>
-                <option value="2">Juan</option>
-                <option value="3">Karen</option>
+
+                <?php while ($row = mysqli_fetch_assoc($resultado)) : ?>
+                    <!-- nos trae cada vendedor con nombre y apellido -->
+                    <!-- lo de selected es para que guarde el valor previamente cargado -->
+                    <option <?php echo $vendedorId === $row['id'] ? 'selected' : ''; ?> value="<?php echo $row['id']; ?>"> <?php echo ($row['nombre'] . " " . $row['apellido']); ?> </option>
+                <?php endwhile; ?>
+
             </select>
         </fieldset>
 
