@@ -1,3 +1,4 @@
+<!-- PARTE C del CRUD -->
 <?php
 // Base de datos
 require '../../includes/config/database.php';
@@ -102,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Redirecciono al usuario una vez que mande bien el form
         if ($resultado) { //asi no meten datos duplicados los locos
-            header("Location: /admin"); // sirver para redireccionar al user
+            header("Location: /admin?resultado=1"); // sirver para redireccionar al user
         }
     }
 }

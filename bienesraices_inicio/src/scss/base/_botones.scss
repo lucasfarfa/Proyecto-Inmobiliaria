@@ -7,3 +7,7 @@
 .boton-verde {
     @include boton($verde, inline-block);
 }
+.boton-rojo-block {
+    @include boton($rojo, block);
+    width: 100%;
+}

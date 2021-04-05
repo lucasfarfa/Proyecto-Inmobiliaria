@@ -35,6 +35,8 @@
 
             </div> <!-- .barra -->
 
-            <h1 class=" <?php echo /*isset(*/$inicio/*)*/ ? 'titulo' : 'no-mostrar';; ?>">Venta de casas y departamentos de lujo.</h1>
+            <?php echo $inicio ? "<h1>Venta de casas y departamentos de lujo.</h1>" : ''; ?>
+
+            
         </div>
     </header>
