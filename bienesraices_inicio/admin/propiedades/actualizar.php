@@ -1,6 +1,13 @@
 <!-- PARTE U del CRUD -->
 <?php // VID 318 - 321
 
+require '../../includes/funciones.php';
+$auth = estaAutenticado();
+
+if(!$auth) { #si no tengo acceso me redirecciona a otra pagina
+    header('Location: /');
+}
+
 // Validar por id valido
 $id = $_GET['id'];
 $id = filter_var($id, FILTER_VALIDATE_INT);
@@ -126,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-require '../../includes/funciones.php';
+
 incluirTemplate('header');
 ?>
 

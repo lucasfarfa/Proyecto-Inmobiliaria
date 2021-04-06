@@ -1,5 +1,12 @@
 <!-- PARTE C del CRUD -->
 <?php
+require '../../includes/funciones.php';
+$auth = estaAutenticado();
+
+if(!$auth) { #si no tengo acceso me redirecciona a otra pagina
+    header('Location: /');
+}
+
 // Base de datos
 require '../../includes/config/database.php';
 $db =  conectarDB(); // llamo la db aqui porque es donde la voy a usar para poder guardar los datos del form
@@ -108,7 +115,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-require '../../includes/funciones.php';
 incluirTemplate('header');
 ?>
 

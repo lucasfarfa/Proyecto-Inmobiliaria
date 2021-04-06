@@ -1,3 +1,13 @@
+<?php
+
+    if(!isset($_SESSION)){ # si no existe la sesion
+        session_start();
+    } # sino quiere decir que la sesion ya esta arrancada
+
+    $auth = $_SESSION['login'] ?? false; #si no esta autenticado auth es null, sino true
+     
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,6 +40,10 @@
                         <a href="anuncios.php">Anuncios</a>
                         <a href="blog.php">Blog</a>
                         <a href="contacto.php">Contacto</a>
+                        <?php if($auth): ?> <!-- agrego el boton cerrar sesion si auth esta com otrue -->
+                            <a href="cerrar-sesion.php">Cerra Sesión</a>
+                        <?php endif; ?>
+
                     </nav>
                 </div>
 
